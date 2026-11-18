@@ -7,8 +7,12 @@
   <meta name="description" content="沿着复制叉解开 DNA，为新链逐个选入互补碱基。">
   <title>碱基筑造师 · DNA 半保留复制</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="challenge.css">
   <script src="replication.js" defer></script>
-  <script src="game.js" defer></script>
+  <script src="challenge-model.js" defer></script>
+  <script src="challenge-scene.js" defer></script>
+  <script src="challenge.js" defer></script>
+  <script src="game.js?v=2" defer></script>
 </head>
 <body data-page="home">
   <header class="site-header">
@@ -31,7 +35,8 @@
         <h1 id="title" tabindex="-1"><span>碱基</span><span>筑造师</span></h1>
         <p class="hero-copy">双螺旋解开后，两条亲代链各自成为模板。<br class="desktop-break">沿着复制叉，为新链选入正确的碱基。</p>
         <div class="hero-actions">
-          <button type="button" class="primary" data-action="play">开始复制 <span aria-hidden="true">↗</span></button>
+          <button type="button" class="primary" data-action="challenge">双叉挑战 <span aria-hidden="true">↗</span></button>
+          <button type="button" class="quiet" data-action="play">基础练习</button>
           <button type="button" class="quiet watch" data-action="demo"><i aria-hidden="true">▷</i>观看演示</button>
         </div>
       </div>
@@ -98,6 +103,69 @@
           <button type="button" class="base-key purine" data-base="G" aria-label="G，鸟嘌呤"><span class="base-shape"></span><b>G</b><span>鸟嘌呤</span></button>
         </div>
         <button id="demo-play" class="primary" type="button" data-action="play" hidden>开始练习 <span aria-hidden="true">↗</span></button>
+      </div>
+    </section>
+
+    <section id="challenge" class="challenge" hidden aria-labelledby="challenge-title">
+      <header class="challenge-header">
+        <div>
+          <p class="section-label" id="challenge-phase">DNA 复制起点</p>
+          <h2 id="challenge-title" tabindex="-1">双叉协作</h2>
+        </div>
+        <div class="challenge-metrics" aria-label="挑战进度">
+          <div><span>剩余时间</span><strong id="challenge-clock">54″</strong></div>
+          <div><span>已配对</span><strong id="challenge-progress">0 / 16</strong></div>
+          <div><span>得分</span><strong id="challenge-score">0</strong></div>
+        </div>
+      </header>
+
+      <div class="challenge-tools">
+        <div class="fork-switch" aria-label="选择复制叉">
+          <button type="button" data-fork="left" aria-pressed="false"><kbd>Q</kbd> 左叉 <i aria-hidden="true"></i></button>
+          <button type="button" data-fork="right" aria-pressed="true"><kbd>E</kbd> 右叉 <i aria-hidden="true"></i></button>
+        </div>
+        <div class="challenge-options">
+          <button type="button" id="challenge-sound" class="quiet" aria-pressed="false">节拍音：关</button>
+          <button type="button" id="challenge-pause" class="quiet" aria-pressed="false" disabled>暂停</button>
+        </div>
+      </div>
+
+      <div class="challenge-stage">
+        <canvas id="challenge-canvas" width="1160" height="448" role="img"
+          aria-label="双向复制示意：从中心向两侧打开双链。前导链随复制叉前进，后随链向相反方向逐段合成。">
+          双向复制与有丝分裂示意
+        </canvas>
+        <div class="challenge-targets" aria-label="复制、校对与加酶位点"></div>
+        <div id="challenge-overlay" class="challenge-overlay">
+          <div class="challenge-card">
+            <h3 id="challenge-card-title">准备接管复制叉</h3>
+            <p id="challenge-card-copy">按住 A、T、C 或 G，再点新链末端的光圈。左右叉分别用 Q、E 切换。</p>
+            <dl id="challenge-results" class="challenge-results" hidden></dl>
+            <div class="challenge-actions">
+              <button type="button" id="challenge-begin" class="primary">开始挑战 · 54 秒 <span aria-hidden="true">↗</span></button>
+              <button type="button" id="challenge-fast" class="quiet">极速 · 38 秒 <span aria-hidden="true">↗</span></button>
+              <button type="button" class="quiet" data-action="play">基础练习</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenge-caption">
+        <p id="challenge-feedback" aria-live="polite">右叉先热身，两次正确配对后解锁左叉。</p>
+        <span class="beat-display"><i id="challenge-beat" aria-hidden="true"></i>踩拍配对 +2</span>
+      </div>
+      <div class="challenge-dock">
+        <div class="challenge-palette" aria-label="选择碱基">
+          <button class="base-key" type="button" data-tool="A" aria-label="选择 A 腺嘌呤" aria-pressed="false"><span class="base-shape"></span><b>A</b><span>腺嘌呤</span></button>
+          <button class="base-key" type="button" data-tool="T" aria-label="选择 T 胸腺嘧啶" aria-pressed="false"><span class="base-shape"></span><b>T</b><span>胸腺嘧啶</span></button>
+          <button class="base-key" type="button" data-tool="C" aria-label="选择 C 胞嘧啶" aria-pressed="false"><span class="base-shape"></span><b>C</b><span>胞嘧啶</span></button>
+          <button class="base-key" type="button" data-tool="G" aria-label="选择 G 鸟嘌呤" aria-pressed="false"><span class="base-shape"></span><b>G</b><span>鸟嘌呤</span></button>
+        </div>
+        <div class="enzyme-tools" aria-label="选择工具">
+          <button class="quiet" type="button" data-tool="repair" aria-pressed="false"><kbd>Shift</kbd> 校对</button>
+          <button class="quiet" type="button" data-tool="enzyme" aria-pressed="false"><kbd>F</kbd> 加酶</button>
+        </div>
+        <div class="challenge-legend" aria-label="颜色图例"><span><i class="old"></i>亲代链</span><span><i class="new"></i>新链</span><span><i class="primer"></i>引物</span></div>
       </div>
     </section>
 

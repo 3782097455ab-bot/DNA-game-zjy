@@ -13,7 +13,7 @@ const LESSONS = [
 ];
 
 const byId = id => document.getElementById(id);
-const pages = ["home", "lab", "results"];
+const pages = ["home", "lab", "challenge", "results"];
 const controls = Array.from(document.querySelectorAll("[data-base]"));
 const infoDialog = byId("info-dialog");
 const checkpoint = byId("segment-dialog");
@@ -57,6 +57,7 @@ function stopFrame() {
 }
 
 function goHome() {
+  challenge.stop();
   stopFrame();
   session = null;
   round = null;
@@ -64,6 +65,7 @@ function goHome() {
 }
 
 function start(mode) {
+  challenge.stop();
   stopFrame();
   session = {
     mode,
@@ -313,7 +315,8 @@ function openInfo(topic) {
     byId("info-title").textContent = "玩法说明";
     content.innerHTML = "<p>看左侧大字和复制叉上的箭头，找到当前模板碱基。点击或按键输入 A、T、C、G。</p>" +
       "<ul class='lesson-list'><li>标准互补配对（A–T、G–C）得 10 分。</li><li>跨类错配得 2 分，同类错配得 0 分。分档用于游戏计分。</li><li>三段练习共用 75 秒作答时间。解旋、配对动画和图鉴讲解期间暂停计时。</li></ul>" +
-      "<p>练习以短序列展示复制过程。每完成一段，解锁一张独立的基因功能卡。</p>";
+      "<p>练习以短序列展示复制过程。每完成一段，解锁一张独立的基因功能卡。</p>" +
+      "<p><b>双叉挑战</b>用 Q / E 切换左右叉。按住 A、T、C、G 配对，Shift 校对，F 放置引物或连接片段，同时点击对应位点。也可以点击屏幕下方的工具来选择。</p>";
   } else {
     byId("info-title").textContent = "基因图鉴";
     content.innerHTML = '<dl class="gene-list">' + LESSONS.map((lesson, index) => {
@@ -324,6 +327,7 @@ function openInfo(topic) {
     }).join("") + "</dl>";
   }
   infoDialog.showModal();
+  challenge.clearTools();
   if (document.body.dataset.page === "lab") updateLab();
 }
 
@@ -345,7 +349,10 @@ document.addEventListener("click", event => {
   if (action) {
     if (infoDialog.open) infoDialog.close();
     if (action === "home") goHome();
-    else start(action);
+    else if (action === "challenge") {
+      stopFrame();
+      challenge.open();
+    } else start(action);
   }
 });
 
