@@ -6,20 +6,25 @@
   <meta name="theme-color" content="#071d24">
   <meta name="description" content="沿着复制叉解开 DNA，为新链逐个选入互补碱基。">
   <title>碱基筑造师 · DNA 半保留复制</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="challenge.css">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="challenge.css?v=3">
   <script src="replication.js" defer></script>
   <script src="challenge-model.js" defer></script>
   <script src="challenge-scene.js" defer></script>
-  <script src="challenge.js" defer></script>
-  <script src="game.js?v=2" defer></script>
+  <script src="challenge.js?v=3" defer></script>
+  <script src="game.js?v=3" defer></script>
 </head>
 <body data-page="home">
   <header class="site-header">
-    <button class="brand" type="button" data-action="home" aria-label="碱基筑造师首页">
-      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span>碱基筑造师</span>
-    </button>
+    <div class="header-identity">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>碱基筑造师</span>
+      </div>
+      <button id="home-button" class="menu-button" type="button" data-action="home" hidden>
+        <span aria-hidden="true">←</span> 返回主菜单
+      </button>
+    </div>
     <nav aria-label="主导航">
       <button type="button" data-dialog="mechanism">复制机制</button>
       <button type="button" data-dialog="rules">玩法说明</button>
@@ -35,9 +40,9 @@
         <h1 id="title" tabindex="-1"><span>碱基</span><span>筑造师</span></h1>
         <p class="hero-copy">双螺旋解开后，两条亲代链各自成为模板。<br class="desktop-break">沿着复制叉，为新链选入正确的碱基。</p>
         <div class="hero-actions">
-          <button type="button" class="primary" data-action="challenge">双叉挑战 <span aria-hidden="true">↗</span></button>
-          <button type="button" class="quiet" data-action="play">基础练习</button>
-          <button type="button" class="quiet watch" data-action="demo"><i aria-hidden="true">▷</i>观看演示</button>
+          <button type="button" class="primary" data-action="play">基础练习 <span aria-hidden="true">↗</span></button>
+          <button type="button" class="primary outlined" data-action="challenge">双叉挑战 <span aria-hidden="true">↗</span></button>
+          <button type="button" class="primary outlined" data-action="demo">观看演示 <span aria-hidden="true">▷</span></button>
         </div>
       </div>
       <div class="hero-footer">
@@ -92,9 +97,12 @@
       </div>
 
       <div class="interaction">
-        <div>
-          <h3 id="interaction-title">选择互补碱基</h3>
-          <p id="feedback" aria-live="polite">等待解旋酶打开双链</p>
+        <div class="operation-guide" id="lab-guide">
+          <span class="guide-icon" aria-hidden="true">↗</span>
+          <div class="guide-copy">
+            <h3 id="interaction-title">选择互补碱基</h3>
+            <p id="feedback" aria-live="polite">等待解旋酶打开双链</p>
+          </div>
         </div>
         <div id="base-controls" class="base-controls" aria-label="选择互补碱基">
           <button type="button" class="base-key purine" data-base="A" aria-label="A，腺嘌呤"><span class="base-shape"></span><b>A</b><span>腺嘌呤</span></button>
@@ -113,7 +121,7 @@
           <h2 id="challenge-title" tabindex="-1">双叉协作</h2>
         </div>
         <div class="challenge-metrics" aria-label="挑战进度">
-          <div><span>剩余时间</span><strong id="challenge-clock">54″</strong></div>
+          <div class="time-readout"><span>剩余时间</span><strong id="challenge-clock">60″</strong></div>
           <div><span>已配对</span><strong id="challenge-progress">0 / 16</strong></div>
           <div><span>得分</span><strong id="challenge-score">0</strong></div>
         </div>
@@ -142,16 +150,23 @@
             <p id="challenge-card-copy">按住 A、T、C 或 G，再点新链末端的光圈。左右叉分别用 Q、E 切换。</p>
             <dl id="challenge-results" class="challenge-results" hidden></dl>
             <div class="challenge-actions">
-              <button type="button" id="challenge-begin" class="primary">开始挑战 · 54 秒 <span aria-hidden="true">↗</span></button>
-              <button type="button" id="challenge-fast" class="quiet">极速 · 38 秒 <span aria-hidden="true">↗</span></button>
-              <button type="button" class="quiet" data-action="play">基础练习</button>
+              <button type="button" id="challenge-begin" class="primary">标准 · 60 秒 <span aria-hidden="true">↗</span></button>
+              <button type="button" id="challenge-fast" class="primary outlined">极速 · 38 秒 <span aria-hidden="true">↗</span></button>
+              <button type="button" class="primary outlined" data-action="play">基础练习 <span aria-hidden="true">↗</span></button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="challenge-caption">
-        <p id="challenge-feedback" aria-live="polite">右叉先热身，两次正确配对后解锁左叉。</p>
+        <div class="operation-guide" id="challenge-guide">
+          <span class="guide-icon" aria-hidden="true">↗</span>
+          <div class="guide-copy">
+            <h3 id="challenge-guide-title">下一步操作</h3>
+            <p id="challenge-instruction">按住 A、T、C 或 G，再点新链末端的光圈。</p>
+            <p id="challenge-feedback" class="guide-feedback" aria-live="polite">右叉先热身，两次正确配对后解锁左叉。</p>
+          </div>
+        </div>
         <span class="beat-display"><i id="challenge-beat" aria-hidden="true"></i>踩拍配对 +2</span>
       </div>
       <div class="challenge-dock">

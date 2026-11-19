@@ -2,11 +2,14 @@ class ChallengeAudio {
   constructor() {
     this.enabled = false;
     this.context = null;
+    this.voices = new Set();
+    this.scheduledBeat = -1;
   }
 
   async toggle() {
     if (this.enabled) {
       this.enabled = false;
+      this.reset();
       return;
     }
     const Audio = window.AudioContext || window.webkitAudioContext;
@@ -20,20 +23,48 @@ class ChallengeAudio {
     }
   }
 
-  cue(frequency, length = .08, volume = .04) {
+  reset() {
+    for (const voice of this.voices) voice.stop();
+    this.voices.clear();
+    this.scheduledBeat = -1;
+  }
+
+  drum(strong, delay = 0) {
     if (!this.enabled || this.context.state !== "running") return;
-    const start = this.context.currentTime;
+    const start = this.context.currentTime + delay;
     const voice = this.context.createOscillator();
     const gain = this.context.createGain();
     voice.type = "sine";
-    voice.frequency.value = frequency;
+    voice.frequency.setValueAtTime(strong ? 155 : 125, start);
+    voice.frequency.exponentialRampToValueAtTime(48, start + .11);
     gain.gain.setValueAtTime(.001, start);
-    gain.gain.exponentialRampToValueAtTime(volume, start + .015);
-    gain.gain.exponentialRampToValueAtTime(.001, start + length);
+    gain.gain.exponentialRampToValueAtTime(strong ? .52 : .38, start + .004);
+    gain.gain.exponentialRampToValueAtTime(.001, start + .18);
     voice.connect(gain);
     gain.connect(this.context.destination);
+    this.voices.add(voice);
+    voice.onended = () => {
+      voice.disconnect();
+      gain.disconnect();
+      this.voices.delete(voice);
+    };
     voice.start(start);
-    voice.stop(start + length + .02);
+    voice.stop(start + .2);
+  }
+
+  sync(elapsed) {
+    if (!this.enabled) return;
+    const current = Math.floor(elapsed / CHALLENGE_BEAT);
+    const intoBeat = elapsed % CHALLENGE_BEAT;
+    if (current > this.scheduledBeat && intoBeat < 95) {
+      this.drum(current % 4 === 0);
+      this.scheduledBeat = current;
+    }
+    const untilNext = CHALLENGE_BEAT - intoBeat;
+    if (untilNext < 110 && current + 1 > this.scheduledBeat) {
+      this.drum((current + 1) % 4 === 0, untilNext / 1000);
+      this.scheduledBeat = current + 1;
+    }
   }
 }
 
@@ -64,7 +95,6 @@ class ChallengeController {
     this.selected = "right";
     this.selectedTool = null;
     this.round = null;
-    this.lastBeat = -1;
 
     for (const button of this.forkButtons) button.addEventListener("click", () => this.selectFork(button.dataset.fork));
     for (const button of this.toolButtons) {
@@ -73,14 +103,17 @@ class ChallengeController {
         this.refreshTools();
       });
     }
-    this.get("begin").addEventListener("click", () => this.begin(54));
+    this.get("begin").addEventListener("click", () => this.begin(60));
     this.get("fast").addEventListener("click", () => this.begin(38));
     this.get("pause").addEventListener("click", () => this.togglePause());
     this.get("sound").addEventListener("click", async () => {
       await this.audio.toggle();
       this.get("sound").textContent = "节拍音：" + (this.audio.enabled ? "开" : "关");
       this.get("sound").setAttribute("aria-pressed", String(this.audio.enabled));
-      if (this.audio.enabled && this.isOpen()) this.audio.cue(430);
+      if (this.audio.enabled && this.isOpen()) {
+        if (this.mode === "play" && !this.paused) this.audio.sync(this.round.elapsed);
+        else this.audio.drum(true);
+      }
     });
     this.targetLayer.addEventListener("click", event => {
       const button = event.target.closest("button[data-target]");
@@ -108,12 +141,13 @@ class ChallengeController {
     if (this.frame) window.cancelAnimationFrame(this.frame);
     this.frame = 0;
     this.lastTime = null;
+    this.audio.reset();
     this.clearTools();
   }
 
   open() {
     this.stop();
-    this.round = new ChallengeRound(54);
+    this.round = new ChallengeRound(60);
     this.mode = "ready";
     this.selected = "right";
     this.scene.front.left = 0;
@@ -136,7 +170,7 @@ class ChallengeController {
     this.mode = "play";
     this.paused = false;
     this.selected = "right";
-    this.lastBeat = -1;
+    this.audio.reset();
     this.scene.front.left = 0;
     this.scene.front.right = 0;
     this.lastTime = null;
@@ -151,12 +185,14 @@ class ChallengeController {
   feedback(text, kind = "hint") {
     this.get("feedback").textContent = text;
     this.get("feedback").dataset.kind = kind;
+    this.get("guide").dataset.kind = kind;
   }
 
   togglePause() {
     if (this.mode !== "play" && this.mode !== "division") return;
     this.paused = !this.paused;
     this.lastTime = null;
+    this.audio.reset();
     this.clearTools();
     const button = this.get("pause");
     button.textContent = this.paused ? "继续" : "暂停";
@@ -187,6 +223,43 @@ class ChallengeController {
     }
   }
 
+  refreshGuide() {
+    const targets = this.round.targets(this.selected);
+    const target = targets.find(item => item.kind === "repair") || targets[0];
+    const side = CHALLENGE_LAYOUT[this.selected].name;
+    const actions = {
+      pair: ["选择互补碱基", "按住 A / T / C / G，再点发光的 3′ 端光圈。"],
+      repair: ["校对错配末端", "按住 Shift，再点红色光圈，移除错配后重新配对。"],
+      primer: ["放置 RNA 引物", "按住 F，再点紫色「引物」位点，启动这一段新链。"],
+      seal: ["连接冈崎片段", "按住 F，再点青色「接合」位点，封合 DNA 骨架。"],
+    };
+    let title = "准备接管复制叉";
+    let instruction = "Q / E 切换左右叉，键盘选工具，鼠标点位点。";
+    if (this.paused) {
+      title = "挑战已暂停";
+      instruction = "点击右上方「继续」返回挑战，计时将从暂停处继续。";
+    } else if (this.mode === "division" || this.mode === "complete") {
+      title = "观察染色体分配";
+      instruction = "姐妹染色单体移向两极，两个子细胞各获得一套染色体。";
+    } else if (this.mode === "timeout") {
+      title = "本轮挑战结束";
+      instruction = "可以再试标准档，或回到基础练习熟悉配对。";
+    } else if (this.mode === "sealed") {
+      title = "DNA 片段已接合";
+      instruction = "接下来镜头将跳到细胞分裂期。";
+    } else if (this.mode === "play" && target) {
+      [title, instruction] = actions[target.kind];
+      title = side + " · " + title;
+    } else if (this.mode === "play") {
+      title = this.round.elapsed < this.round.opening ? "双链正在解旋" : side + " · 等待新位点";
+      instruction = this.round.elapsed < this.round.opening
+        ? "先接管右叉。完成两个位点后，左叉也将解锁。"
+        : "引物将被移除并补入 DNA。也可以先切换到另一个复制叉。";
+    }
+    if (this.get("guide-title").textContent !== title) this.get("guide-title").textContent = title;
+    if (this.get("instruction").textContent !== instruction) this.get("instruction").textContent = instruction;
+  }
+
   keyDown(event) {
     if (!this.isOpen() || this.mode !== "play" || this.paused || infoDialog.open ||
         event.repeat || event.metaKey || event.ctrlKey || event.altKey) return;
@@ -213,10 +286,9 @@ class ChallengeController {
     }
     const result = this.round.apply(side, id, this.tool());
     this.feedback(result.text, result.kind);
-    if (result.kind === "correct") this.audio.cue(this.round.event?.kind === "seal" ? 740 : 540);
-    if (result.kind === "mismatch") this.audio.cue(165, .13);
     if (this.round.stage === "sealed") {
       this.mode = "sealed";
+      this.audio.reset();
       this.clearTools();
     }
     this.refresh();
@@ -237,6 +309,7 @@ class ChallengeController {
     }
     for (const button of this.toolButtons) button.disabled = this.mode !== "play" || this.paused;
     this.refreshTools();
+    this.refreshGuide();
   }
 
   placeTargets() {
@@ -270,6 +343,7 @@ class ChallengeController {
       button.setAttribute("aria-label", CHALLENGE_LAYOUT[target.side].name + " " + lane + " " + name);
     }
     for (const [id, button] of this.targetButtons) button.hidden = !visible.has(id);
+    this.refreshGuide();
   }
 
   queue() {
@@ -293,14 +367,11 @@ class ChallengeController {
     const clockText = seconds + "″";
     if (this.get("clock").textContent !== clockText) this.get("clock").textContent = clockText;
     this.get("clock").classList.toggle("urgent", seconds <= 10 && this.mode === "play");
-    const beat = Math.floor(this.round.elapsed / CHALLENGE_BEAT);
     const pulse = this.mode === "play" && canAdvance && this.round.beatDistance() <= .16;
     this.get("beat").classList.toggle("pulse", pulse);
     this.root.classList.toggle("on-beat", pulse);
-    if (this.mode === "play" && canAdvance && beat !== this.lastBeat) {
-      this.lastBeat = beat;
-      this.audio.cue(beat % 4 === 0 ? 360 : 235, .052, .026);
-    }
+    if (this.mode === "play" && canAdvance) this.audio.sync(this.round.elapsed);
+    else this.audio.reset();
     if (this.scene.draw(this.round, this.selected, this.mode, Math.min(delta, 64))) this.placeTargets();
     if (this.mode === "play") {
       for (const button of this.forkButtons) button.dataset.hasTarget = String(this.round.targets(button.dataset.fork).length > 0);

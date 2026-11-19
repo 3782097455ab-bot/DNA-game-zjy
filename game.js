@@ -46,6 +46,7 @@ function unlock(gene) {
 function showPage(page, heading) {
   for (const name of pages) byId(name).hidden = name !== page;
   document.body.dataset.page = page;
+  byId("home-button").hidden = page === "home";
   window.scrollTo({ top: 0, behavior: "instant" });
   byId(heading).focus({ preventScroll: true });
 }
@@ -117,6 +118,7 @@ function feedback(message, kind = "") {
   const output = byId("feedback");
   output.textContent = message;
   output.dataset.kind = kind;
+  byId("lab-guide").dataset.kind = kind || "hint";
 }
 
 function activeTemplate() {
