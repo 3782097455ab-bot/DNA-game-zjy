@@ -35,9 +35,28 @@ a { color: inherit; text-underline-offset: .25em; }
 .brand-mark::before, .brand-mark::after { content: ""; position: absolute; inset: 1px 7px; border: 1.3px solid currentColor; border-width: 0 1.3px; border-radius: 48%; transform: rotate(-20deg); }
 .brand-mark::after { transform: rotate(20deg); }
 .brand-mark i { display: block; width: 10px; height: 1px; background: currentColor; }
-.site-header nav { display: flex; gap: clamp(.5rem, 2.4vw, 2.65rem); }
-.site-header nav button { padding: .48rem .16rem; font-size: .87rem; color: #d6e5de; white-space: nowrap; }
-.site-header nav button:hover, .quiet:hover { color: var(--teal); }
+.site-header nav { display: flex; gap: clamp(.45rem, 1.1vw, 1rem); }
+.site-header nav button {
+  --nav-accent: #a8ecd9;
+  display: inline-flex; align-items: center; justify-content: center; gap: .65rem;
+  min-height: 2.85rem; padding: .55rem 1.15rem; border-radius: 50rem;
+  border: 1px solid #9acebd82; background: linear-gradient(120deg, #245455f0, #102f3bf5);
+  box-shadow: inset 0 1px 0 #dafff21c, 0 5px 18px #0003;
+  font-size: .92rem; font-weight: 600; letter-spacing: .04em; color: #f0f7e9;
+  white-space: nowrap; transition: border-color .18s, background .18s, transform .18s, box-shadow .18s;
+}
+.site-header nav button::before {
+  content: ""; flex: 0 0 .35rem; height: .35rem;
+  border-radius: 50%; background: var(--nav-accent); box-shadow: 0 0 8px #a8ecd94a;
+}
+.site-header nav button[data-dialog="rules"] { --nav-accent: #edc38a; }
+.site-header nav button[data-dialog="genes"] { --nav-accent: #c5b6ef; }
+.site-header nav button:hover {
+  color: #fffbed; border-color: var(--nav-accent); background: #2a5b5b;
+  box-shadow: inset 0 1px 0 #dafff226, 0 5px 20px #0004; transform: translateY(-2px);
+}
+.site-header nav button:active { transform: translateY(0); background: #376967; }
+.quiet:hover { color: var(--teal); }
 .header-identity { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem 1.4rem; }
 .menu-button {
   display: inline-flex; align-items: center; gap: .55rem; min-height: 2.55rem;
@@ -244,16 +263,17 @@ a { color: inherit; text-underline-offset: .25em; }
   #fork-canvas { max-height: 49vh; }
 }
 @media (max-width: 760px) {
-  .site-header { padding: 0 1.2rem; min-height: 4.3rem; gap: .55rem; }
+  .site-header { padding: .7rem 1.2rem; min-height: 4.3rem; gap: .65rem; flex-wrap: wrap; }
   .brand { font-size: .72rem; gap: .5rem; letter-spacing: .05em; }
   .brand-mark { width: 20px; }
-  .site-header nav { gap: .65rem; }
-  .site-header nav button { font-size: .7rem; }
+  .header-identity { width: 100%; justify-content: space-between; }
+  .site-header nav { width: 100%; gap: .5rem; }
+  .site-header nav button { flex: 1; min-width: 0; min-height: 2.75rem; padding: .5rem .55rem; gap: .4rem; font-size: .81rem; letter-spacing: 0; }
   body:not([data-page="home"]) .site-header { flex-wrap: wrap; padding-block: .55rem; gap: .32rem; }
   body:not([data-page="home"]) .header-identity { width: 100%; justify-content: space-between; }
-  body:not([data-page="home"]) .site-header nav { width: 100%; justify-content: center; gap: 1.7rem; }
+  body:not([data-page="home"]) .site-header nav { width: 100%; justify-content: center; gap: .5rem; }
   .menu-button { min-height: 2.25rem; padding: .28rem .8rem; font-size: .75rem; }
-  .hero { padding: 5.5rem 1.45rem 5rem; align-items: center; }
+  .hero { padding: 9rem 1.45rem 5rem; align-items: center; }
   .hero-art { background-position: 63% center; }
   .hero-art::after { background: linear-gradient(90deg, #04141deb, #071a2399 45%, #071a232a), linear-gradient(0deg, #04151ddd, transparent 37%); }
   .hero h1 { font-size: clamp(4.5rem, 14.2vw, 7.4rem); }
