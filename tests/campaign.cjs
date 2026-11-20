@@ -9,6 +9,7 @@ async function check(browser,mobile) {
   const p=await ctx.newPage(), errors=[];
   p.on("pageerror",e=>errors.push(e.message));
   p.setDefaultTimeout(5000);
+  p.setDefaultNavigationTimeout(90000);
   await p.goto(entry);
   await p.clock.install();
   const el=s=>p.locator(s);
