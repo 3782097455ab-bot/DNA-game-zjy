@@ -13,7 +13,7 @@ const LESSONS = [
 ];
 
 const byId = id => document.getElementById(id);
-const pages = ["home", "lab", "challenge", "results"];
+const pages = ["home", "lab", "challenge", "results", "map", "mission"];
 const controls = Array.from(document.querySelectorAll("[data-base]"));
 const infoDialog = byId("info-dialog");
 const checkpoint = byId("segment-dialog");
@@ -58,6 +58,7 @@ function stopFrame() {
 }
 
 function goHome() {
+  campaign.stop();
   challenge.stop();
   stopFrame();
   session = null;
@@ -66,6 +67,7 @@ function goHome() {
 }
 
 function start(mode) {
+  campaign.stop();
   challenge.stop();
   stopFrame();
   session = {
@@ -351,7 +353,9 @@ document.addEventListener("click", event => {
   if (action) {
     if (infoDialog.open) infoDialog.close();
     if (action === "home") goHome();
+    else if (action === "map") campaign.map();
     else if (action === "challenge") {
+      campaign.stop();
       stopFrame();
       challenge.open();
     } else start(action);

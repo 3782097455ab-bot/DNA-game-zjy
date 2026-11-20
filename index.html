@@ -8,11 +8,14 @@
   <title>碱基筑造师 · DNA 半保留复制</title>
   <link rel="stylesheet" href="styles.css?v=4">
   <link rel="stylesheet" href="challenge.css?v=3">
+  <link rel="stylesheet" href="campaign.css?v=2">
   <script src="replication.js" defer></script>
   <script src="challenge-model.js" defer></script>
   <script src="challenge-scene.js" defer></script>
   <script src="challenge.js?v=3" defer></script>
-  <script src="game.js?v=3" defer></script>
+  <script src="game.js?v=20" defer></script>
+  <script src="campaign-levels.js?v=2" defer></script>
+  <script src="campaign.js?v=2" defer></script>
 </head>
 <body data-page="home">
   <header class="site-header">
@@ -40,6 +43,7 @@
         <h1 id="title" tabindex="-1"><span>碱基</span><span>筑造师</span></h1>
         <p class="hero-copy">双螺旋解开后，两条亲代链各自成为模板。<br class="desktop-break">沿着复制叉，为新链选入正确的碱基。</p>
         <div class="hero-actions">
+          <button type="button" class="primary" data-action="map">关卡地图 <span aria-hidden="true">↗</span></button>
           <button type="button" class="primary" data-action="play">基础练习 <span aria-hidden="true">↗</span></button>
           <button type="button" class="primary outlined" data-action="challenge">双叉挑战 <span aria-hidden="true">↗</span></button>
           <button type="button" class="primary outlined" data-action="demo">观看演示 <span aria-hidden="true">▷</span></button>
@@ -184,6 +188,21 @@
       </div>
     </section>
 
+    <section id="map" class="lab campaign" hidden aria-labelledby="map-title">
+      <header class="lab-head"><div><p class="section-label">碱基筑造师 · 战役</p><h2 id="map-title" tabindex="-1">关卡地图</h2></div></header>
+      <div id="campaign-routes"></div>
+    </section>
+    <section id="mission" class="lab campaign" hidden aria-labelledby="mission-title">
+      <header class="lab-head"><div><p id="mission-route" class="section-label"></p><h2 id="mission-title" tabindex="-1"></h2></div>
+        <div class="mission-nav"><button class="quiet" data-action="map">关卡地图</button><button class="quiet" id="mission-sound" aria-pressed="false">节拍音：关</button><button class="quiet" id="mission-pause">暂停</button></div>
+      </header>
+      <div class="mission-hud"><span id="mission-stage"></span><span id="mission-time"></span></div>
+      <div id="mission-board"></div>
+      <canvas hidden id="mission-division" width="1140" height="460" aria-label="有丝分裂中姐妹染色单体分离，两个子细胞分别获得染色体"></canvas>
+      <div id="mission-guide" class="operation-guide" role="status"><div><p class="section-label">当前操作</p><strong id="mission-hint"></strong><p id="mission-feedback"></p></div></div>
+      <div id="mission-tools" class="mission-tools" aria-label="操作工具"></div>
+      <div id="mission-result"></div>
+    </section>
     <section id="results" class="results" hidden aria-labelledby="result-title">
       <div class="result-art"><img src="assets/replication.webp" alt="两个子代 DNA 各由一条青色亲代链和一条金色新链组成"></div>
       <div class="result-content">
