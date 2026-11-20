@@ -22,6 +22,7 @@ async function check(browser,mobile) {
   const home=()=>press("#home-button");
   const map=()=>press('[data-action="map"]:visible');
   const done=async(name,counts)=>{assert.match(await get("#mission-result h3"),new RegExp(name));assert(await el(".key-site strong").isVisible());if(counts)assert.deepEqual((await el("#mission-result dd").allTextContents()).slice(0,2),counts);};
+  await require("./expression.cjs")({p,el,press,get,site,tool,act,level,home,map,done,mobile,assert});
   await map();assert(await el('[data-level="relay"]').isDisabled());await level("fork");
   await site("5");assert.match(await get("#mission-feedback"),/另一端/);
   await press("#mission-pause");assert(await el("#mission-board").isHidden());await press("#mission-pause");
@@ -80,5 +81,10 @@ async function check(browser,mobile) {
   console.log((mobile?"touch 390px":"desktop 1280px")+" passed campaign, storage, old gallery, practice, demo, challenge, audio and navigation");
   await ctx.close();
 }
-(async()=>{const b=await chromium.launch();try{await Promise.all([check(b,false),check(b,true)]);}finally{await b.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
+(async()=>{
+  const proxy=process.env.GAME_PROXY?{server:process.env.GAME_PROXY}:undefined;
+  const b=await chromium.launch({proxy});
+  try {await Promise.all([check(b,false),check(b,true)]);}
+  finally {await b.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});
 

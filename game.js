@@ -328,7 +328,7 @@ function openInfo(topic) {
       const state = visible ? "已解锁" : "待解锁";
       const description = visible ? lesson.description : "完成练习片段 " + (index + 1) + " 后解锁。";
       return "<div><dt>" + lesson.gene + "<span>" + state + "</span></dt><dd>" + description + "</dd></div>";
-    }).join("") + "</dl>";
+    }).join("") + "</dl>" + expressionGallery(campaign.cleared("translate"));
   }
   infoDialog.showModal();
   challenge.clearTools();

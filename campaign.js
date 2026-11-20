@@ -140,10 +140,16 @@ const campaign = (() => {
     const nextLevel=routeLevels(l.route)[routeLevels(l.route).indexOf(l)+1];
     const record=run.lastSite;
     const stats=l.stats?l.stats(run):[["正确配对",run.pairs],["完成修复",run.repairs]];
-    stats.push(["用时",Math.ceil(run.elapsed/1000)+" 秒"]);
+    if(l.route!=="inheritance") stats.push(["用时",Math.ceil(run.elapsed/1000)+" 秒"]);
     node("result").innerHTML='<div class="settlement"><h3 tabindex="-1">'+(won?"完成 · "+l.name:"计时结束")+'</h3><dl class="result-stats">'+stats.map(([a,b])=>'<div><dt>'+a+'</dt><dd>'+b+'</dd></div>').join("")+'</dl>'+
       (record?'<figure class="key-site"><figcaption>本局关键位点</figcaption><strong>'+record.label+'</strong><p>'+record.why+'</p></figure>':'')+
       (won && l.product?l.product(run):'')+'<div class="mission-nav">'+(won&&nextLevel?button("data-level",nextLevel.id,"下一关 · "+nextLevel.name):"")+button("data-level",l.id,"重试本关")+button("data-action","map","关卡地图")+'</div></div>';
+    if(won && l.id==="division") {
+      const extra=campaignLevels.find(item=>item.id==="marks");
+      if(extra) node("result").querySelector(".mission-nav").insertAdjacentHTML("afterbegin",accessible(extra)
+        ?button("data-level","marks","沿新链观察甲基标记"):button("data-level","transcribe","进入基因表达路线"));
+    }
+    if(won && l.id==="translate") node("result").querySelector(".mission-nav").insertAdjacentHTML("beforeend",button("data-dialog","genes","观看乳糖酶功能动画"));
     node("result").querySelector("h3").focus();
   }
   node("pause").addEventListener("click",togglePause);

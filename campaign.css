@@ -41,6 +41,44 @@
 .cell-pair i {color:var(--gold);font:bold 2.2rem var(--number);}
 .spindle {margin:auto;border:2px solid #70a995;border-radius:50%;max-width:32rem;min-height:8rem;display:flex;justify-content:space-around;align-items:center;background:radial-gradient(#235560,#0a262e);}
 .spindle strong {font:700 2.6rem var(--number);color:var(--gold);}
+@media(max-width:400px) {
+  .campaign .strand {grid-template-columns:3.8em auto;gap:.2rem;}
+  .campaign .bases b {padding-inline:.09em;}
+  .campaign .bases small {padding-inline:0;}
+}
+.marks .bases,.marks b {position:relative;}
+.marks {padding-top:.65rem;}
+.marks sup {position:absolute;right:-.12em;top:-.78em;color:#d9abff;font:700 .65rem var(--body);}
+.codon-track,.cross-parents,.chromosomes,.gamete-cells {display:flex;justify-content:center;align-items:center;gap:clamp(.6rem,3vw,2rem);padding:.8rem 0;}
+.codon-track b,.cross-parents strong {font:600 clamp(1.5rem,4vw,2.7rem) var(--number);color:var(--teal);}
+.codon-track b {border-bottom:3px solid transparent;letter-spacing:.12em;padding:.18em .32em;}
+.codon-track .current {border-color:var(--gold);color:var(--gold);background:#62482a44;}
+.peptide {text-align:center;background:linear-gradient(90deg,transparent,#28534f,transparent);padding:.8rem;color:#eae6c3;}
+.chromosomes b {display:grid;text-align:center;font:600 3rem var(--number);color:var(--teal);}
+.chromosomes b:nth-child(2) {color:var(--gold);}
+.chromosomes small,.gamete-cells small {font: .8rem var(--body);}
+.gamete-cells div {display:grid;text-align:center;border:1px solid #79b6a8;border-radius:50%;background:#1b434a;min-width:3.8rem;padding:.45rem;}
+.gamete-cells b {font:600 1.4rem var(--number);color:var(--gold);}
+.punnett table,.sample-chart {margin:.5rem auto;border-collapse:collapse;text-align:center;width:min(100%,42rem);font-variant-numeric:tabular-nums;}
+.campaign caption {margin-bottom:.5rem;color:var(--teal);font-weight:650;}
+.punnett th,.punnett td,.sample-chart th,.sample-chart td {padding:.35rem .15rem;border:1px solid #71978555;}
+.punnett td b,.punnett td small {display:block;}.punnett td small {font-size:.7rem;}
+.sample-chart td small {display:block;font-size:.72rem;color:var(--muted);}
+.punnett [data-trait="0"] {background:#20584f;}.punnett [data-trait="1"] {background:#394d61;}
+.punnett [data-trait="2"] {background:#584c38;}.punnett [data-trait="3"] {background:#49374a;}
+.enzyme-film {border:1px solid var(--line);padding:1rem;border-radius:1rem;margin-top:1rem;}
+.enzyme-film figcaption {font-weight:700;color:var(--teal);}
+.enzyme-film small {color:var(--muted);}
+.enzyme-action {position:relative;height:9rem;overflow:hidden;background:radial-gradient(ellipse,#244e50,transparent 70%);}
+.enzyme-action span {position:absolute;text-align:center;left:50%;}
+.lactase {bottom:1rem;transform:translateX(-50%);padding:.2rem 1.1rem;border:3px solid var(--teal);border-top-style:dashed;border-radius:35% 35% 48% 48%;color:var(--teal);}
+.sugar {top:1.6rem;padding:.25rem .5rem;border-radius:2rem;color:#122a2b;font-size:.84rem;font-weight:700;}
+.glucose {background:var(--gold);animation:glucose 5s ease-in-out infinite;}
+.galactose {background:#b8b1e2;animation:galactose 5s ease-in-out infinite;}
+@keyframes glucose {0%,12% {transform:translate(-100%,-.7rem);}45%,60% {transform:translate(-100%,2rem);}85%,100% {transform:translate(-160%,-.7rem);}}
+@keyframes galactose {0%,12% {transform:translate(0,-.7rem);}45%,60% {transform:translate(0,2rem);}85%,100% {transform:translate(60%,-.7rem);}}
+#mission-time.pulse {text-shadow:0 0 .7rem var(--gold);}
+@media(prefers-reduced-motion:reduce) {.sugar {animation:none;}.glucose {transform:translateX(-125%);}.galactose {transform:translateX(25%);}}
 .key-site {border-left:3px solid var(--gold);background:#23444966;margin:1rem 0;padding:1rem 1.15rem;}
 .key-site strong {display:block;color:var(--gold);font-size:1.35rem;}
 @media(max-width:620px) {

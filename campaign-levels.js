@@ -94,8 +94,14 @@ function fidelity(run) {
 function mitosis(run) {
   const n=run.step-6, first=run.data.firstPole;
   if(n>=2) return {title:"两个子细胞",division:true,auto:6000,hint:"观察姐妹染色单体分离。每个子细胞各获得一份。",sites:[]};
-  return {title:"时间跳转 · 有丝分裂中期",visual:'<div class="spindle"><span>左极 '+(n&&first==="left"?"━━":"")+'</span><strong>Ⅰ · Ⅱ</strong><span>'+(n&&first==="right"?"━━":"")+' 右极</span></div><p class="figure-note">'+(n?"姐妹 Ⅰ 已接到"+(first==="left"?"左":"右")+"极":"姐妹 Ⅰ、Ⅱ 来自同一条复制后的染色体")+'</p>',
-    hint:n?"姐妹 Ⅰ 已连好。将姐妹 Ⅱ 的动粒连到相反一极。":"局部复制完成，镜头跳到分裂期。为姐妹 Ⅰ 的动粒选择任一纺锤体极。",sites:["left","right"].map(p=>site(p,(p==="left"?"左":"右")+"极",null,n&&p===first?{error:"两个姐妹动粒需要分别连接相反的两极。"}:{effect:r=>{if(!n)r.data.firstPole=p;},keySite:"姐妹动粒 · "+(p==="left"?"左极":"右极"),why:"姐妹染色单体与相反两极建立连接后，分离时各进入一个子细胞。"}))};
+  return {title:"时间跳转 · 有丝分裂中期",visual:spindleDiagram(first,"姐妹 Ⅰ、Ⅱ 来自同一条复制后的染色体。"),
+    hint:n?"姐妹 Ⅰ 已连好。将姐妹 Ⅱ 的动粒连到相反一极。":"局部复制完成，镜头跳到分裂期。为姐妹 Ⅰ 的动粒选择任一纺锤体极。",sites:poleSites(first,"firstPole","姐妹染色单体与相反两极建立连接后，分离时各进入一个子细胞。")};
+}
+function spindleDiagram(first,caption) {
+  return '<div class="spindle"><span>左极 '+(first==="left"?"━━":"")+'</span><strong>Ⅰ · Ⅱ</strong><span>'+(first==="right"?"━━":"")+' 右极</span></div><p class="figure-note">'+caption+(first?"　姐妹 Ⅰ 已接到"+(first==="left"?"左":"右")+"极。":"")+'</p>';
+}
+function poleSites(first,field,why) {
+  return ["left","right"].map(p=>site(p,(p==="left"?"左":"右")+"极",null,p===first?{error:"两个姐妹动粒需要分别连接相反的两极。"}:{effect:r=>{if(!first)r.data[field]=p;},keySite:"姐妹动粒 · "+(p==="left"?"左极":"右极"),why}));
 }
 function cellPair(left,right,caption) {
   return '<div class="cell-pair"><div><i>'+left+'</i></div><span>⟷</span><div><i>'+right+'</i></div></div><p class="figure-note">'+caption+'</p>';
